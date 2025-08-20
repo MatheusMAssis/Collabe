@@ -14,4 +14,11 @@
     <%= event.date %>
   </p>
 
+  <p>
+    <strong>Created by:</strong>
+    <%= link_to (event.user.name.present? ? event.user.name : event.user.email), 
+                user_path(event.user), 
+                class: "text-blue-600 hover:text-blue-800" %>
+  </p>
+
 </div>
