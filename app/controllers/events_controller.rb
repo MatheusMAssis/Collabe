@@ -6,6 +6,11 @@ class EventsController < ApplicationController
   def index
     @events = Event.includes(:user)
 
+    # Apply user events filter
+    if params[:user_events] == "true" && user_signed_in?
+      @events = @events.where(user: current_user)
+    end
+
     # Apply search filter
     if params[:search].present?
       @events = @events.search_by_title_and_description(params[:search])

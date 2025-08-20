@@ -1,70 +1,135 @@
-<p style="color: green"><%= notice %></p>
-
 <% content_for :title, "Events" %>
 
-<h1>Events</h1>
-
-<!-- Search and Filter Form -->
-<div class="filters mb-4">
-  <%= form_with url: events_path, method: :get, local: true, class: "row g-3" do |form| %>
-    <div class="col-md-4">
-      <%= form.text_field :search, placeholder: "Search events...", value: params[:search], 
-                         class: "form-control" %>
+<!-- Header Section -->
+<div class="bg-white border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <h1 class="text-3xl font-bold mb-2" style="color: var(--navy-700)">
+          <%= params[:user_events] == 'true' ? 'My Events' : 'Discover Events' %>
+        </h1>
+        <p class="text-gray-600">
+          <%= params[:user_events] == 'true' ? 'Events you\'ve created or joined' : 'Find amazing events in your area' %>
+        </p>
+      </div>
+      <% if policy(Event).new? %>
+        <div class="mt-4 lg:mt-0">
+          <%= link_to new_event_path, class: "btn-primary flex items-center space-x-2" do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <span>Create Event</span>
+          <% end %>
+        </div>
+      <% end %>
     </div>
-    
-    <div class="col-md-3">
-      <%= form.select :category, 
-                     options_for_select([["All Categories", "all"]] + Event::CATEGORIES.map { |c| [c, c] }, params[:category]), 
-                     {}, 
-                     { class: "form-control" } %>
-    </div>
-    
-    <div class="col-md-3">
-      <%= form.select :date_filter, 
-                     options_for_select([
-                       ["All Dates", ""],
-                       ["Today", "today"],
-                       ["This Week", "this_week"], 
-                       ["This Month", "this_month"],
-                       ["Upcoming", "upcoming"]
-                     ], params[:date_filter]), 
-                     {}, 
-                     { class: "form-control" } %>
-    </div>
-    
-    <div class="col-md-2">
-      <%= form.submit "Filter", class: "btn btn-primary" %>
-      <%= link_to "Clear", events_path, class: "btn btn-secondary" %>
-    </div>
-  <% end %>
+  </div>
 </div>
 
-<!-- Pagination Info -->
-<div class="pagination-info mb-3">
-  <%= pagy_info(@pagy) %>
+<!-- Search and Filter Section -->
+<div class="bg-gray-50 py-6">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+      <%= form_with url: events_path, method: :get, local: true, class: "space-y-4 lg:space-y-0" do |form| %>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          <!-- Search Field -->
+          <div class="lg:col-span-2">
+            <%= form.text_field :search, 
+                placeholder: "Search events, locations, organizers...", 
+                value: params[:search],
+                class: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200" %>
+          </div>
+          
+          <!-- Category Filter -->
+          <div>
+            <%= form.select :category, 
+                options_for_select([["All Categories", ""]] + Event::CATEGORIES.map { |c| [c, c] }, params[:category]), 
+                {}, 
+                { class: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200" } %>
+          </div>
+          
+          <!-- Date Filter -->
+          <div>
+            <%= form.select :date_filter, 
+                options_for_select([
+                  ["All Dates", ""],
+                  ["Today", "today"],
+                  ["This Week", "this_week"], 
+                  ["This Month", "this_month"],
+                  ["Upcoming", "upcoming"]
+                ], params[:date_filter]), 
+                {}, 
+                { class: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200" } %>
+          </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 pt-4">
+          <%= form.submit "Search Events", class: "btn-primary flex-1 sm:flex-none" %>
+          <%= link_to "Clear Filters", events_path, class: "btn-outline flex-1 sm:flex-none text-center" %>
+          <%= form.hidden_field :user_events, value: params[:user_events] if params[:user_events] %>
+        </div>
+      <% end %>
+    </div>
+  </div>
 </div>
 
-<!-- Events List -->
-<div id="events">
-  <% if @events.any? %>
-    <% @events.each do |event| %>
-      <%= render event %>
-      <p>
-        <%= link_to "Show this event", event %>
-      </p>
+<!-- Results Section -->
+<div class="py-8 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Results Info -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+      <div class="text-gray-600 mb-4 sm:mb-0">
+        <%= pagy_info(@pagy) %>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="text-sm text-gray-500">Sort by:</span>
+        <select class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+          <option>Date (Soonest)</option>
+          <option>Date (Latest)</option>
+          <option>Most Popular</option>
+          <option>Recently Added</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Events Grid -->
+    <% if @events.any? %>
+      <div class="event-grid">
+        <% @events.each do |event| %>
+          <%= render 'event_card', event: event %>
+        <% end %>
+      </div>
+      
+      <!-- Pagination -->
+      <% if @pagy.pages > 1 %>
+        <div class="mt-12 flex justify-center">
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 inline-flex">
+            <%== pagy_nav(@pagy, page_param: :page, 
+                class: "flex items-center space-x-1 p-1",
+                link_extra: "class='px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md transition-colors duration-200'",
+                prev_html: "<span class='px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md transition-colors duration-200'>← Previous</span>",
+                next_html: "<span class='px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md transition-colors duration-200'>Next →</span>") %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <!-- Empty State -->
+      <div class="text-center py-16">
+        <svg class="w-20 h-20 text-gray-400 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+        <h3 class="text-xl font-semibold text-gray-900 mb-3">No events found</h3>
+        <p class="text-gray-500 mb-8 max-w-md mx-auto">
+          We couldn't find any events matching your criteria. Try adjusting your search filters or create a new event.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <%= link_to "Clear Filters", events_path, class: "btn-outline" %>
+          <% if policy(Event).new? %>
+            <%= link_to "Create Event", new_event_path, class: "btn-primary" %>
+          <% end %>
+        </div>
+      </div>
     <% end %>
-  <% else %>
-    <div class="alert alert-info">
-      <p>No events found matching your criteria.</p>
-    </div>
-  <% end %>
+  </div>
 </div>
-
-<!-- Pagination -->
-<div class="pagination-wrapper">
-  <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
-</div>
-
-<% if policy(Event).new? %>
-  <%= link_to "New event", new_event_path, class: "btn btn-success" %>
-<% end %>

@@ -1,2 +1,149 @@
-<h1 class="text-2xl font-bold">Rails is up ✅</h1>
-<p>Welcome to Collabe.</p>
+<<!-- Hero Section -->
+<div class="relative bg-gradient-to-br from-gray-50 to-blue-50 py-16 lg:py-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+      <h1 class="text-4xl lg:text-6xl font-bold mb-6" style="color: var(--navy-700)">
+        Discover Amazing
+        <span class="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
+          Events
+        </span>
+      </h1>
+      <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+        Connect with like-minded people and create unforgettable experiences. From workshops to conferences, find your next adventure.
+      </p>
+      
+      <!-- Search Bar -->
+      <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+          <%= form_with url: events_path, method: :get, local: true, class: "flex flex-col lg:flex-row gap-4" do |form| %>
+            <div class="flex-1">
+              <%= form.text_field :search, 
+                  placeholder: "What are you looking for?", 
+                  value: params[:search],
+                  class: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200" %>
+            </div>
+            <div class="lg:w-48">
+              <%= form.select :category, 
+                  options_for_select([["All Categories", ""]] + Event::CATEGORIES.map { |c| [c, c] }, params[:category]), 
+                  {}, 
+                  { class: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200" } %>
+            </div>
+            <div class="lg:w-32">
+              <%= form.submit "Search", class: "btn-primary w-full" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Featured Events Section -->
+<div class="py-16 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold mb-4" style="color: var(--navy-700)">Featured Events</h2>
+      <p class="text-gray-600 text-lg">Discover the most popular events in your area</p>
+    </div>
+
+    <% if defined?(@featured_events) && @featured_events.any? %>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <% @featured_events.each do |event| %>
+          <div class="bg-white rounded-xl overflow-hidden card-shadow hover:scale-105 transition-transform duration-300">
+            <div class="aspect-w-16 aspect-h-10 bg-gray-200">
+              <% if event.cover_image.attached? %>
+                <%= image_tag event.cover_image, class: "w-full h-48 object-cover" %>
+              <% else %>
+                <div class="w-full h-48 bg-gradient-to-br from-cyan-100 to-blue-100 flex items-center justify-center">
+                  <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+              <% end %>
+            </div>
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-3">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
+                  <%= event.category %>
+                </span>
+                <span class="text-sm text-gray-500">
+                  <%= event.date.strftime("%b %d") %>
+                </span>
+              </div>
+              <h3 class="text-lg font-semibold mb-2 text-gray-900">
+                <%= link_to event.title, event_path(event), class: "hover:text-cyan-600 transition-colors duration-200" %>
+              </h3>
+              <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                <%= truncate(event.description, length: 100) %>
+              </p>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center text-sm text-gray-500">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM9 3a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                  </svg>
+                  <%= event.attendee_count %> attending
+                </div>
+                <%= link_to "View Details", event_path(event), class: "btn-primary text-sm" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No events yet</h3>
+        <p class="text-gray-500 mb-6">Be the first to create an amazing event!</p>
+        <%= link_to "Create Event", new_event_path, class: "btn-primary" %>
+      </div>
+    <% end %>
+
+    <div class="text-center mt-12">
+      <%= link_to "View All Events", events_path, class: "btn-outline" %>
+    </div>
+  </div>
+</div>
+
+<!-- Categories Section -->
+<div class="py-16 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold mb-4" style="color: var(--navy-700)">Browse by Category</h2>
+      <p class="text-gray-600 text-lg">Find events that match your interests</p>
+    </div>
+    
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <% Event::CATEGORIES.each do |category| %>
+        <%= link_to events_path(category: category), class: "group" do %>
+          <div class="bg-white rounded-xl p-6 text-center card-shadow hover:scale-105 transition-transform duration-300">
+            <div class="w-12 h-12 mx-auto mb-4 rounded-lg bg-gradient-to-br from-cyan-100 to-blue-100 flex items-center justify-center">
+              <% case category %>
+              <% when "Workshop" %>
+                <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                </svg>
+              <% when "Conference" %>
+                <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+              <% when "Meetup" %>
+                <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM9 3a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+              <% else %>
+                <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              <% end %>
+            </div>
+            <h3 class="font-semibold text-gray-900 group-hover:text-cyan-600 transition-colors duration-200">
+              <%= category %>
+            </h3>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

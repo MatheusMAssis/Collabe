@@ -1,50 +1,109 @@
-<%= form_with(model: event || Event.new, local: true ) do |form| %>
-  <% if event.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(event.errors.count, "error") %> prohibited this event from being saved:</h2>
+<div class="max-w-2xl mx-auto">
+  <%= form_with(model: event || Event.new, local: true, multipart: true, class: "space-y-6") do |form| %>
+    <!-- Error Messages -->
+    <% if event.errors.any? %>
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">
+              <%= pluralize(event.errors.count, "error") %> prohibited this event from being saved:
+            </h3>
+            <div class="mt-2 text-sm text-red-700">
+              <ul class="list-disc list-inside space-y-1">
+                <% event.errors.each do |error| %>
+                  <li><%= error.full_message %></li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
 
-      <ul>
-        <% event.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <!-- Event Title -->
+    <div>
+      <%= form.label :title, "Event Title", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.text_field :title, 
+          placeholder: "What's the name of your event?",
+          class: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 text-lg" %>
+    </div>
+
+    <!-- Event Description -->
+    <div>
+      <%= form.label :description, "Description", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.text_area :description, 
+          rows: 6,
+          placeholder: "Tell people more about your event. What can they expect? What should they bring?",
+          class: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 resize-none" %>
+    </div>
+
+    <!-- Date and Category Row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Event Date -->
+      <div>
+        <%= form.label :date, "Date & Time", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.datetime_local_field :date, 
+            class: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200" %>
+      </div>
+
+      <!-- Event Category -->
+      <div>
+        <%= form.label :category, "Category", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.select :category, 
+            options_for_select(Event::CATEGORIES.map { |c| [c, c] }, event&.category), 
+            { prompt: "Select a category" }, 
+            { class: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200" } %>
+      </div>
+    </div>
+
+    <!-- Cover Image -->
+    <div>
+      <%= form.label :cover_image, "Cover Image", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      
+      <!-- File Upload Area -->
+      <div class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-cyan-400 transition-colors duration-200">
+        <div class="space-y-1 text-center">
+          <% if event&.cover_image&.attached? %>
+            <div class="mb-4">
+              <%= image_tag event.cover_image.variant(resize_to_limit: [300, 200]), 
+                  alt: "Event cover", 
+                  class: "mx-auto rounded-lg shadow-md" %>
+              <p class="mt-2 text-sm text-gray-500">
+                Current image: <%= event.cover_image.filename %>
+              </p>
+            </div>
+          <% else %>
+            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+              <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          <% end %>
+          
+          <div class="flex text-sm text-gray-600">
+            <%= form.file_field :cover_image, 
+                accept: "image/*",
+                class: "sr-only",
+                id: "cover_image_upload" %>
+            <label for="cover_image_upload" class="relative cursor-pointer bg-white rounded-md font-medium text-cyan-600 hover:text-cyan-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-cyan-500">
+              <span><%= event&.cover_image&.attached? ? 'Change image' : 'Upload a file' %></span>
+            </label>
+            <p class="pl-1">or drag and drop</p>
+          </div>
+          <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
+      <%= link_to "Cancel", event.persisted? ? event_path(event) : events_path, 
+          class: "flex-1 sm:flex-none btn-outline text-center" %>
+      <%= form.submit event.persisted? ? "Update Event" : "Create Event", 
+          class: "flex-1 sm:flex-none btn-primary" %>
     </div>
   <% end %>
-
-  <div>
-    <%= form.label :title, style: "display: block" %>
-    <%= form.text_field :title %>
-  </div>
-
-  <div>
-    <%= form.label :description, style: "display: block" %>
-    <%= form.textarea :description %>
-  </div>
-
-  <div>
-    <%= form.label :date, style: "display: block" %>
-    <%= form.datetime_field :date %>
-  </div>
-
-  <div>
-    <%= form.label :category, style: "display: block" %>
-    <%= form.select :category, options_for_select(Event::CATEGORIES.map { |c| [c, c] }, event&.category), 
-                    { prompt: "Select a category" }, 
-                    { class: "form-control" } %>
-  </div>
-
-  <div>
-    <%= form.label :cover_image, style: "display: block" %>
-    <%= form.file_field :cover_image, accept: "image/*" %>
-    <% if event&.cover_image&.attached? %>
-      <p>Current image: <%= event.cover_image.filename %></p>
-      <%= image_tag event.cover_image.variant(resize_to_limit: [200, 150]), 
-                    alt: "Event cover", 
-                    style: "max-width: 200px; height: auto; border-radius: 8px;" %>
-    <% end %>
-  </div>
-
-  <div>
-    <%= form.submit %>
-  </div>
-<% end %>
+</div>

@@ -1,0 +1,55 @@
+<div class="event-card" onclick="window.location.href='<%= event_path(event) %>'">
+  <!-- Event Image -->
+  <div class="event-card-image">
+    <% if event.cover_image.attached? %>
+      <%= image_tag event.cover_image, alt: event.title %>
+    <% else %>
+      <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+      </div>
+    <% end %>
+    
+    <!-- Category Badge -->
+    <% if event.category.present? %>
+      <div class="event-card-category">
+        <%= event.category %>
+      </div>
+    <% end %>
+    
+    <!-- Favorite Heart -->
+    <div class="event-card-favorite" onclick="event.stopPropagation();">
+      <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 28c7-4.733 14-10 14-17 0-1.792-.683-3.583-2.05-4.95-1.367-1.366-3.158-2.05-4.95-2.05-1.791 0-3.583.684-4.949 2.05l-2.051 2.051-2.05-2.051c-1.367-1.366-3.158-2.05-4.95-2.05-1.791 0-3.583.684-4.949 2.05-1.367 1.367-2.051 3.158-2.051 4.95 0 7 7 12.267 14 17z"></path>
+      </svg>
+    </div>
+  </div>
+  
+  <!-- Event Content -->
+  <div class="event-card-content">
+    <!-- Event Location/Organizer -->
+    <div class="event-card-location">
+      Organized by <%= event.user.name.present? ? event.user.name : event.user.email.split('@').first %>
+    </div>
+    
+    <!-- Event Title -->
+    <div class="event-card-title">
+      <%= event.title %>
+    </div>
+    
+    <!-- Event Date -->
+    <div class="event-card-dates">
+      <%= event.date.strftime("%b %d") %> - <%= event.date.strftime("%I:%M %p") %>
+    </div>
+    
+    <!-- Event Price/Attendance -->
+    <div class="event-card-price">
+      <% if event.attendee_count > 0 %>
+        <%= pluralize(event.attendee_count, 'person') %> attending
+      <% else %>
+        <span class="event-card-price-label">Be the first to join</span>
+      <% end %>
+    </div>
+  </div>
+</div>
