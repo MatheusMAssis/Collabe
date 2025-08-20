@@ -1,0 +1,37 @@
+<div id="<%= dom_id(comment) %>" class="border-b border-gray-200 pb-4 mb-4 last:border-b-0">
+  <div class="flex items-start space-x-3">
+    <div class="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold">
+      <%= (comment.user.name.present? ? comment.user.name.first : comment.user.email.first).upcase %>
+    </div>
+    
+    <div class="flex-1">
+      <div class="flex items-center space-x-2 mb-1">
+        <span class="font-semibold text-gray-900">
+          <%= link_to (comment.user.name.present? ? comment.user.name : comment.user.email), 
+                      user_path(comment.user), 
+                      class: "text-blue-600 hover:text-blue-800" %>
+        </span>
+        <span class="text-sm text-gray-500">
+          <%= time_ago_in_words(comment.created_at) %> ago
+        </span>
+        
+        <% if user_signed_in? && (comment.user == current_user || current_user.admin?) %>
+          <div class="flex space-x-2 ml-auto">
+            <%= link_to "Edit", edit_event_comment_path(@event, comment), 
+                        class: "text-sm text-blue-600 hover:text-blue-800",
+                        data: { turbo_stream: true } %>
+            <%= button_to "Delete", event_comment_path(@event, comment), 
+                          method: :delete,
+                          class: "text-sm text-red-600 hover:text-red-800 bg-transparent border-none p-0 cursor-pointer",
+                          confirm: "Are you sure?",
+                          form: { data: { turbo_stream: true } } %>
+          </div>
+        <% end %>
+      </div>
+      
+      <div id="<%= dom_id(comment, :content) %>">
+        <p class="text-gray-700 whitespace-pre-wrap"><%= comment.content %></p>
+      </div>
+    </div>
+  </div>
+</div>

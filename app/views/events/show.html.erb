@@ -1,13 +1,92 @@
 <p style="color: green"><%= notice %></p>
+<p style="color: red"><%= alert %></p>
 
 <%= render @event %>
 
+<!-- Registration Section -->
+<div class="bg-gray-50 p-4 rounded-lg mb-6">
+  <h3 class="text-lg font-semibold mb-3">Event Registration</h3>
+  
+  <% if user_signed_in? %>
+    <% if current_user.registered_for?(@event) %>
+      <p class="text-green-600 mb-2">✓ You are registered for this event</p>
+      <%= button_to "Leave Event", event_registration_path(@event, current_user.registrations.find_by(event: @event)), 
+                    method: :delete, 
+                    class: "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded",
+                    confirm: "Are you sure you want to leave this event?" %>
+    <% else %>
+      <%= button_to "Join Event", event_registrations_path(@event), 
+                    method: :post, 
+                    class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+    <% end %>
+  <% else %>
+    <p class="text-gray-600">Please <%= link_to "sign in", new_user_session_path, class: "text-blue-600 hover:text-blue-800" %> to register for this event.</p>
+  <% end %>
+</div>
+
+<!-- Attendees Section -->
+<div class="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+  <h3 class="text-lg font-semibold mb-3">
+    Attendees (<%= @event.attendee_count %>)
+  </h3>
+  
+  <% if @event.attendees.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+      <% @event.attendees.each do |attendee| %>
+        <div class="flex items-center space-x-2 p-2 bg-gray-50 rounded">
+          <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+            <%= (attendee.name.present? ? attendee.name.first : attendee.email.first).upcase %>
+          </div>
+          <span class="text-gray-700">
+            <%= link_to (attendee.name.present? ? attendee.name : attendee.email), 
+                        user_path(attendee), 
+                        class: "text-blue-600 hover:text-blue-800" %>
+          </span>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-gray-600">No attendees yet. Be the first to join!</p>
+  <% end %>
+</div>
+
+<!-- Comments Section -->
+<div class="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+  <h3 class="text-lg font-semibold mb-4">Comments (<%= @event.comments.count %>)</h3>
+  
+  <!-- Comment Form -->
+  <% if user_signed_in? %>
+    <%= form_with model: [@event, @comment], 
+                  local: false, 
+                  class: "mb-6",
+                  data: { turbo_stream: true } do |form| %>
+      <div class="mb-4">
+        <%= form.text_area :content, 
+                          placeholder: "Add a comment...", 
+                          rows: 3,
+                          class: "w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" %>
+      </div>
+      <%= form.submit "Post Comment", 
+                     class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+    <% end %>
+  <% else %>
+    <p class="text-gray-600 mb-6">Please <%= link_to "sign in", new_user_session_path, class: "text-blue-600 hover:text-blue-800" %> to post a comment.</p>
+  <% end %>
+  
+  <!-- Comments List -->
+  <div id="comments">
+    <%= render @comments %>
+  </div>
+</div>
+
 <div>
   <% if policy(@event).edit? %>
-    <%= link_to "Edit this event", edit_event_path(@event) %> |
+    <%= link_to "Edit this event", edit_event_path(@event), class: "text-blue-600 hover:text-blue-800" %> |
   <% end %>
   <% if policy(@event).destroy? %>
-    <%= button_to "Destroy this event", @event, method: :delete %>
+    <%= button_to "Destroy this event", @event, method: :delete, 
+                  class: "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded",
+                  confirm: "Are you sure?" %>
   <% end %>
-  <%= link_to "Back to events", events_path %>
+  <%= link_to "Back to events", events_path, class: "text-blue-600 hover:text-blue-800" %>
 </div>

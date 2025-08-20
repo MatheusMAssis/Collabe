@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
   devise_for :users
-  resources :events
+  resources :events do
+    resources :registrations, only: [ :create, :destroy ]
+    resources :comments, except: [ :index, :show, :new ]
+  end
   resources :users, only: [ :show, :edit, :update ]
   get "home/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

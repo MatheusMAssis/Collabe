@@ -11,6 +11,8 @@ class EventsController < ApplicationController
   # GET /events/1 or /events/1.json
   def show
     authorize @event
+    @comment = Comment.new
+    @comments = @event.comments.includes(:user).ordered
   end
 
   # GET /events/new
