@@ -14,6 +14,13 @@
     <%= event.date %>
   </p>
 
+  <% if event.category.present? %>
+    <p>
+      <strong>Category:</strong>
+      <span class="badge bg-secondary"><%= event.category %></span>
+    </p>
+  <% end %>
+
   <p>
     <strong>Created by:</strong>
     <%= link_to (event.user.name.present? ? event.user.name : event.user.email), 

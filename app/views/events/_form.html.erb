@@ -27,6 +27,13 @@
   </div>
 
   <div>
+    <%= form.label :category, style: "display: block" %>
+    <%= form.select :category, options_for_select(Event::CATEGORIES.map { |c| [c, c] }, event&.category), 
+                    { prompt: "Select a category" }, 
+                    { class: "form-control" } %>
+  </div>
+
+  <div>
     <%= form.submit %>
   </div>
 <% end %>

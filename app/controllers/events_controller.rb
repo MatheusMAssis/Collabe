@@ -4,7 +4,38 @@ class EventsController < ApplicationController
 
   # GET /events or /events.json
   def index
-    @events = Event.all
+    @events = Event.includes(:user)
+
+    # Apply search filter
+    if params[:search].present?
+      @events = @events.search_by_title_and_description(params[:search])
+    end
+
+    # Apply category filter
+    if params[:category].present? && params[:category] != "all"
+      @events = @events.by_category(params[:category])
+    end
+
+    # Apply date filter
+    if params[:date_filter].present?
+      case params[:date_filter]
+      when "today"
+        @events = @events.where(date: Date.current.beginning_of_day..Date.current.end_of_day)
+      when "this_week"
+        @events = @events.where(date: Date.current.beginning_of_week..Date.current.end_of_week)
+      when "this_month"
+        @events = @events.where(date: Date.current.beginning_of_month..Date.current.end_of_month)
+      when "upcoming"
+        @events = @events.where("date >= ?", Time.current)
+      end
+    end
+
+    # Default order by date
+    @events = @events.order(:date)
+
+    # Apply pagination
+    @pagy, @events = pagy(@events, limit: 10)
+
     authorize @events
   end
 
@@ -75,6 +106,6 @@ class EventsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def event_params
-      params.expect(event: [ :title, :description, :date ])
+      params.expect(event: [ :title, :description, :date, :category ])
     end
 end

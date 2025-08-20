@@ -4,15 +4,67 @@
 
 <h1>Events</h1>
 
-<div id="events">
-  <% @events.each do |event| %>
-    <%= render event %>
-    <p>
-      <%= link_to "Show this event", event %>
-    </p>
+<!-- Search and Filter Form -->
+<div class="filters mb-4">
+  <%= form_with url: events_path, method: :get, local: true, class: "row g-3" do |form| %>
+    <div class="col-md-4">
+      <%= form.text_field :search, placeholder: "Search events...", value: params[:search], 
+                         class: "form-control" %>
+    </div>
+    
+    <div class="col-md-3">
+      <%= form.select :category, 
+                     options_for_select([["All Categories", "all"]] + Event::CATEGORIES.map { |c| [c, c] }, params[:category]), 
+                     {}, 
+                     { class: "form-control" } %>
+    </div>
+    
+    <div class="col-md-3">
+      <%= form.select :date_filter, 
+                     options_for_select([
+                       ["All Dates", ""],
+                       ["Today", "today"],
+                       ["This Week", "this_week"], 
+                       ["This Month", "this_month"],
+                       ["Upcoming", "upcoming"]
+                     ], params[:date_filter]), 
+                     {}, 
+                     { class: "form-control" } %>
+    </div>
+    
+    <div class="col-md-2">
+      <%= form.submit "Filter", class: "btn btn-primary" %>
+      <%= link_to "Clear", events_path, class: "btn btn-secondary" %>
+    </div>
   <% end %>
 </div>
 
+<!-- Pagination Info -->
+<div class="pagination-info mb-3">
+  <%= pagy_info(@pagy) %>
+</div>
+
+<!-- Events List -->
+<div id="events">
+  <% if @events.any? %>
+    <% @events.each do |event| %>
+      <%= render event %>
+      <p>
+        <%= link_to "Show this event", event %>
+      </p>
+    <% end %>
+  <% else %>
+    <div class="alert alert-info">
+      <p>No events found matching your criteria.</p>
+    </div>
+  <% end %>
+</div>
+
+<!-- Pagination -->
+<div class="pagination-wrapper">
+  <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+</div>
+
 <% if policy(Event).new? %>
-  <%= link_to "New event", new_event_path %>
+  <%= link_to "New event", new_event_path, class: "btn btn-success" %>
 <% end %>
