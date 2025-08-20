@@ -1,29 +1,33 @@
 class EventsController < ApplicationController
   before_action :authenticate_user!, except: [ :index, :show ]
   before_action :set_event, only: [ :show, :edit, :update, :destroy ]
-  before_action :check_owner, only: [ :edit, :update, :destroy ]
 
   # GET /events or /events.json
   def index
     @events = Event.all
+    authorize @events
   end
 
   # GET /events/1 or /events/1.json
   def show
+    authorize @event
   end
 
   # GET /events/new
   def new
     @event = current_user.events.build
+    authorize @event
   end
 
   # GET /events/1/edit
   def edit
+    authorize @event
   end
 
   # POST /events or /events.json
   def create
     @event = current_user.events.build(event_params)
+    authorize @event
 
     respond_to do |format|
       if @event.save
@@ -38,6 +42,7 @@ class EventsController < ApplicationController
 
   # PATCH/PUT /events/1 or /events/1.json
   def update
+    authorize @event
     respond_to do |format|
       if @event.update(event_params)
         format.html { redirect_to @event, notice: "Event was successfully updated.", status: :see_other }
@@ -51,6 +56,7 @@ class EventsController < ApplicationController
 
   # DELETE /events/1 or /events/1.json
   def destroy
+    authorize @event
     @event.destroy!
 
     respond_to do |format|
@@ -63,10 +69,6 @@ class EventsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_event
       @event = Event.find(params[:id])
-    end
-
-    def check_owner
-      redirect_to events_path, alert: "You can only edit your own events." unless @event.user == current_user
     end
 
     # Only allow a list of trusted parameters through.

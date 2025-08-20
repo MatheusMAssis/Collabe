@@ -13,4 +13,6 @@
   <% end %>
 </div>
 
-<%= link_to "New event", new_event_path %>
+<% if policy(Event).new? %>
+  <%= link_to "New event", new_event_path %>
+<% end %>
