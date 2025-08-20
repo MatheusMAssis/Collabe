@@ -7,6 +7,8 @@ class RegistrationsController < ApplicationController
     authorize @registration
 
     if @registration.save
+      # Send email notification to event creator
+      EventMailer.with(event: @event, user: current_user).registration_notification.deliver_later
       redirect_to @event, notice: "Successfully registered for event!"
     else
       redirect_to @event, alert: "Unable to register for event."

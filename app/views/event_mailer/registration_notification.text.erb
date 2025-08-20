@@ -1,0 +1,17 @@
+🎉 New Registration for Your Event!
+
+Hi <%= @event_creator.name.present? ? @event_creator.name : @event_creator.email %>,
+
+Great news! Someone just registered for your event.
+
+Event: <%= @event.title %>
+New attendee: <%= @user.name.present? ? @user.name : @user.email %>
+Event date: <%= @event.date.strftime("%B %d, %Y at %I:%M %p") if @event.date %>
+Total attendees: <%= @event.attendee_count %>
+
+View event details: <%= event_url(@event) %>
+
+Thanks for using Collabe to organize your events!
+
+Best regards,
+The Collabe Team

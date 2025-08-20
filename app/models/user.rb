@@ -9,6 +9,12 @@ class User < ApplicationRecord
   has_many :registered_events, through: :registrations, source: :event
   has_many :comments, dependent: :destroy
 
+  # Active Storage attachments
+  has_one_attached :profile_picture
+
+  # Callbacks
+  after_create :send_welcome_email
+
   # Role management
   ROLES = %w[user admin].freeze
 
@@ -26,5 +32,11 @@ class User < ApplicationRecord
   # Check if user is registered for an event
   def registered_for?(event)
     registered_events.include?(event)
+  end
+
+  private
+
+  def send_welcome_email
+    UserMailer.with(user: self).welcome_email.deliver_later
   end
 end

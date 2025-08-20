@@ -4,6 +4,9 @@ class Event < ApplicationRecord
   has_many :attendees, through: :registrations, source: :user
   has_many :comments, dependent: :destroy
 
+  # Active Storage attachments
+  has_one_attached :cover_image
+
   # Categories for events
   CATEGORIES = [
     "Workshop",

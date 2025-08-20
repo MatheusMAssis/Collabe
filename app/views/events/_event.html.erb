@@ -1,4 +1,12 @@
 <div id="<%= dom_id event %>">
+  <% if event.cover_image.attached? %>
+    <div style="margin-bottom: 1rem;">
+      <%= image_tag event.cover_image.variant(resize_to_limit: [400, 250]), 
+                    alt: event.title, 
+                    style: "width: 100%; max-width: 400px; height: 250px; object-fit: cover; border-radius: 8px;" %>
+    </div>
+  <% end %>
+  
   <p>
     <strong>Title:</strong>
     <%= event.title %>

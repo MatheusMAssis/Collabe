@@ -1,6 +1,14 @@
 <p style="color: green"><%= notice %></p>
 <p style="color: red"><%= alert %></p>
 
+<% if @event.cover_image.attached? %>
+  <div style="margin-bottom: 2rem;">
+    <%= image_tag @event.cover_image.variant(resize_to_limit: [800, 400]), 
+                  alt: @event.title, 
+                  style: "width: 100%; max-width: 800px; height: 400px; object-fit: cover; border-radius: 12px;" %>
+  </div>
+<% end %>
+
 <%= render @event %>
 
 <!-- Registration Section -->
@@ -34,9 +42,15 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
       <% @event.attendees.each do |attendee| %>
         <div class="flex items-center space-x-2 p-2 bg-gray-50 rounded">
-          <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-            <%= (attendee.name.present? ? attendee.name.first : attendee.email.first).upcase %>
-          </div>
+          <% if attendee.profile_picture.attached? %>
+            <%= image_tag attendee.profile_picture.variant(resize_to_limit: [32, 32]), 
+                          alt: "Profile picture", 
+                          class: "w-8 h-8 object-cover rounded-full" %>
+          <% else %>
+            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+              <%= (attendee.name.present? ? attendee.name.first : attendee.email.first).upcase %>
+            </div>
+          <% end %>
           <span class="text-gray-700">
             <%= link_to (attendee.name.present? ? attendee.name : attendee.email), 
                         user_path(attendee), 

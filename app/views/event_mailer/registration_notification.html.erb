@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
+      .header {
+        background-color: #3b82f6;
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      .content {
+        padding: 20px;
+        background-color: #f9fafb;
+      }
+      .event-details {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        border-left: 4px solid #3b82f6;
+      }
+      .button {
+        display: inline-block;
+        background-color: #3b82f6;
+        color: white;
+        padding: 12px 24px;
+        text-decoration: none;
+        border-radius: 6px;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎉 New Registration!</h1>
+      </div>
+      
+      <div class="content">
+        <p>Hi <%= @event_creator.name.present? ? @event_creator.name : @event_creator.email %>,</p>
+        
+        <p>Great news! Someone just registered for your event.</p>
+        
+        <div class="event-details">
+          <h2><%= @event.title %></h2>
+          <p><strong>New attendee:</strong> <%= @user.name.present? ? @user.name : @user.email %></p>
+          <p><strong>Event date:</strong> <%= @event.date.strftime("%B %d, %Y at %I:%M %p") if @event.date %></p>
+          <p><strong>Total attendees:</strong> <%= @event.attendee_count %></p>
+        </div>
+        
+        <a href="<%= event_url(@event) %>" class="button">View Event Details</a>
+        
+        <p>Thanks for using Collabe to organize your events!</p>
+        
+        <p>Best regards,<br>The Collabe Team</p>
+      </div>
+    </div>
+  </body>
+</html>vent#registration_notification</h1>
+
+<p>
+  <%= @greeting %>, find me in app/views/event_mailer/registration_notification.html.erb
+</p>
